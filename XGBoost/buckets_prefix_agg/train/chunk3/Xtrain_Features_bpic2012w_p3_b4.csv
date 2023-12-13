@@ -1,11 +1,11 @@
 0
 static__AMOUNT_REQ
-agg__Activity_W_Al
-agg__Activity_W_Bf
-agg__Activity_W_Ca
-agg__Activity_W_No
-agg__Activity_W_Va
-agg__Activity_W_id
+agg__Activity_W_Afhandelen leads
+agg__Activity_W_Beoordelen fraude
+agg__Activity_W_Completeren aanvraag
+agg__Activity_W_Nabellen incomplete dossiers
+agg__Activity_W_Nabellen offertes
+agg__Activity_W_Valideren aanvraag
 agg__Resource_10124.0
 agg__Resource_10138.0
 agg__Resource_10188.0
@@ -51,7 +51,6 @@ agg__Resource_11181.0
 agg__Resource_11189.0
 agg__Resource_11201.0
 agg__Resource_11203.0
-agg__Resource_11254.0
 agg__Resource_11259.0
 agg__Resource_11269.0
 agg__Resource_11289.0
@@ -66,8 +65,3 @@ agg__elapsed_max
 agg__elapsed_min
 agg__elapsed_sum
 agg__elapsed_std
-agg__proctime_mean
-agg__proctime_max
-agg__proctime_min
-agg__proctime_sum
-agg__proctime_std

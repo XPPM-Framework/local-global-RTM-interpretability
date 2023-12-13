@@ -32,7 +32,7 @@ def add_all_columns(group):
 
 
 
-with open("log_summary.tsv", 'w') as fout:
+with open("log_summary.csv", 'w') as fout:
     fout.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (
     "log", "total_cases", "unique_activities", "total_events","avg_unique_events_per_trace", "mean_case_length",
     "std_case_length", "mean_case_duration","std_case_duration","mean_remtime","std_remtime"))

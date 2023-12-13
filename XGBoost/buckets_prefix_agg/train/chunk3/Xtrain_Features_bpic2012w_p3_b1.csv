@@ -1,8 +1,8 @@
 0
 static__AMOUNT_REQ
-agg__Activity_W_Al
-agg__Activity_W_Bf
-agg__Activity_W_Ca
+agg__Activity_W_Afhandelen leads
+agg__Activity_W_Beoordelen fraude
+agg__Activity_W_Completeren aanvraag
 agg__Resource_10124.0
 agg__Resource_10138.0
 agg__Resource_10188.0
@@ -35,6 +35,7 @@ agg__Resource_11002.0
 agg__Resource_11003.0
 agg__Resource_11009.0
 agg__Resource_11019.0
+agg__Resource_11049.0
 agg__Resource_11079.0
 agg__Resource_11119.0
 agg__Resource_11121.0
@@ -57,8 +58,3 @@ agg__elapsed_max
 agg__elapsed_min
 agg__elapsed_sum
 agg__elapsed_std
-agg__proctime_mean
-agg__proctime_max
-agg__proctime_min
-agg__proctime_sum
-agg__proctime_std

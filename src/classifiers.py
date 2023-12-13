@@ -7,7 +7,7 @@ import xgboost as xgb
 from sklearn.ensemble import RandomForestRegressor
 from xgboost.core import XGBoostError
 
-MY_WORKSPACE_DIR = "./"
+from env_vars import MY_WORKSPACE_DIR
 
 # #### Classifiers
 

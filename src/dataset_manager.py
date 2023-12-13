@@ -3,7 +3,7 @@ import numpy as np
 
 from sklearn.model_selection import KFold
 
-MY_WORKSPACE_DIR = "./"
+from env_vars import MY_WORKSPACE_DIR
 # #### Dataset Manager
 
 # ##### Dataset Configurations
@@ -152,7 +152,7 @@ class DatasetManager:
 
         dtypes[self.label_col] = "float"  # remaining time should be float
 
-        data = pd.read_csv( MY_WORKSPACE_DIR + "experiments/" + filename[ self.dataset_name], sep=",", dtype=dtypes)
+        data = pd.read_csv( MY_WORKSPACE_DIR / "experiments/" / filename[ self.dataset_name], sep=",", dtype=dtypes)
         data[self.timestamp_col] = pd.to_datetime(data[self.timestamp_col])
         return data
 

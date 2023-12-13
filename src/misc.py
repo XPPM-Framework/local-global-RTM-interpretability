@@ -1,7 +1,5 @@
 import pandas as pd
 
-MY_WORKSPACE_DIR = "./"
-
 # trying to get the datset out of the pipeline process
 from sklearn.base import TransformerMixin, BaseEstimator
 

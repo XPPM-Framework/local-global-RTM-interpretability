@@ -7,12 +7,9 @@ import numpy as np
 #   - elapsed time
 #   - remaining time
 
-# In[57]:
 
-MY_WORKSPACE_DIR = "./"
+from env_vars import MY_WORKSPACE_DIR
 
-input_data_folder = MY_WORKSPACE_DIR + "experiments/main_logs/"
-output_data_folder = MY_WORKSPACE_DIR + "experiments/logdata/"
 
 filenames_bpic2011 = "bpic2011.csv"
 
@@ -23,10 +20,8 @@ filenames_bpic2012w = "bpic2012w.csv"
 filenames_bpic2015 = "bpic2015_5.csv"
 
 filenames = [filenames_bpic2011, filenames_bpic2012a, filenames_bpic2012o, filenames_bpic2012w, filenames_bpic2015]
-timestamp_col = "Complete Timestamp"
 
 columns_to_remove = ["label"]
-case_id_col = "Case ID"
 
 import datetime
 
@@ -50,9 +45,9 @@ def add_remtime_column(group, timestamp_col="Complete Timestamp"):
 def get_open_cases(event_log: pd.DataFrame, case_id_key: str, timestamp_key: str) -> pd.Series:
     """
     Get running cases for each event. Assumes all cases to be completed.
-    :param event_log:
-    :param case_id_key:
-    :param timestamp_key:
+    :param event_log: The event log to get the open cases metric for.
+    :param case_id_key: The case id key of the event log.
+    :param timestamp_key: The timestamp key of the event log.
     :return:
     """
     # Find start and end for each case
@@ -72,7 +67,8 @@ def get_open_cases(event_log: pd.DataFrame, case_id_key: str, timestamp_key: str
 
     return open_cases
 
-
+input_data_folder = MY_WORKSPACE_DIR / "experiments/main_logs/"
+output_data_folder = MY_WORKSPACE_DIR / "experiments/logdata/"
 for filename in filenames:
     print(filename)
     # data = pd.read_csv(os.path.join(input_data_folder, filename), sep=",")
