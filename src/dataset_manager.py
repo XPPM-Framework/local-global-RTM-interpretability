@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.model_selection import KFold
 
 from env_vars import MY_WORKSPACE_DIR
+
 # #### Dataset Manager
 
 # ##### Dataset Configurations
@@ -37,7 +38,8 @@ neg_label[dataset] = "regular"
 
 # features for classifier
 dynamic_cat_cols[dataset] = ["Activity", "Producer code", "Section", "Specialism code", "group"]
-static_cat_cols[dataset] = ["Diagnosis", "Treatment code", "Diagnosis code", "case Specialism code", "Diagnosis Treatment Combination ID"]
+static_cat_cols[dataset] = ["Diagnosis", "Treatment code", "Diagnosis code", "case Specialism code",
+                            "Diagnosis Treatment Combination ID"]
 dynamic_num_cols[dataset] = ["Number of executions", "duration", "month", "weekday", "hour"]
 static_num_cols[dataset] = ["Age"]
 
@@ -58,7 +60,11 @@ neg_label[dataset] = "regular"
 dynamic_cat_cols[dataset] = ["Activity", "monitoringResource", "question", "Resource"]
 static_cat_cols[dataset] = ["Responsible_actor"]
 dynamic_num_cols[dataset] = ["duration", "month", "weekday", "hour"]
-static_num_cols[dataset] = ["SUMleges", 'Aanleg (Uitvoeren werk of werkzaamheid)', 'Bouw', 'Brandveilig gebruik (vergunning)', 'Gebiedsbescherming', 'Handelen in strijd met regels RO', 'Inrit/Uitweg', 'Kap', 'Milieu (neutraal wijziging)', 'Milieu (omgevingsvergunning beperkte milieutoets)', 'Milieu (vergunning)', 'Monument', 'Reclame', 'Sloop']
+static_num_cols[dataset] = ["SUMleges", 'Aanleg (Uitvoeren werk of werkzaamheid)', 'Bouw',
+                            'Brandveilig gebruik (vergunning)', 'Gebiedsbescherming',
+                            'Handelen in strijd met regels RO', 'Inrit/Uitweg', 'Kap', 'Milieu (neutraal wijziging)',
+                            'Milieu (omgevingsvergunning beperkte milieutoets)', 'Milieu (vergunning)', 'Monument',
+                            'Reclame', 'Sloop']
 static_num_cols[dataset].append('Flora en Fauna')
 static_num_cols[dataset].append('Brandveilig gebruik (melding)')
 static_num_cols[dataset].append('Milieu (melding)')
@@ -80,7 +86,7 @@ neg_label[dataset] = "deviant"
 # features for classifier
 dynamic_cat_cols[dataset] = ['Activity', 'Resource']
 static_cat_cols[dataset] = []
-dynamic_num_cols[dataset] = ['open_cases','elapsed']
+dynamic_num_cols[dataset] = ['open_cases', 'elapsed']
 static_num_cols[dataset] = ['AMOUNT_REQ']
 
 ################################################################################
@@ -100,7 +106,7 @@ neg_label[dataset] = "deviant"
 # features for classifier
 dynamic_cat_cols[dataset] = ['Activity', 'Resource']
 static_cat_cols[dataset] = []
-dynamic_num_cols[dataset] = ['open_cases','elapsed']
+dynamic_num_cols[dataset] = ['open_cases', 'elapsed']
 static_num_cols[dataset] = ['AMOUNT_REQ']
 
 ################################################################################
@@ -120,8 +126,9 @@ neg_label[dataset] = "deviant"
 # features for classifier
 dynamic_cat_cols[dataset] = ['Activity', 'Resource']
 static_cat_cols[dataset] = []
-dynamic_num_cols[dataset] = ['open_cases','elapsed',]
+dynamic_num_cols[dataset] = ['open_cases', 'elapsed', ]
 static_num_cols[dataset] = ['AMOUNT_REQ']
+
 
 # ##### Dataset Manager
 
@@ -146,14 +153,18 @@ class DatasetManager:
 
     def read_dataset(self):
         # read dataset
-        dtypes = {col:"object" for col in self.dynamic_cat_cols+self.static_cat_cols+[self.case_id_col, self.timestamp_col]}
+        dtypes = {col: "object" for col in
+                  self.dynamic_cat_cols + self.static_cat_cols + [self.case_id_col, self.timestamp_col]}
         for col in self.dynamic_num_cols + self.static_num_cols:
             dtypes[col] = "float"
 
         dtypes[self.label_col] = "float"  # remaining time should be float
 
-        data = pd.read_csv( MY_WORKSPACE_DIR / "experiments/" / filename[ self.dataset_name], sep=",", dtype=dtypes)
-        data[self.timestamp_col] = pd.to_datetime(data[self.timestamp_col])
+        data = pd.read_csv(MY_WORKSPACE_DIR / "experiments/" / filename[self.dataset_name], sep=",", dtype=dtypes)
+        try:
+            data[self.timestamp_col] = pd.to_datetime(data[self.timestamp_col])
+        except:
+            data[self.timestamp_col] = pd.to_datetime(data[self.timestamp_col], format="ISO8601")
         return data
 
     def split_data(self, data, train_ratio):
@@ -162,9 +173,11 @@ class DatasetManager:
         grouped = data.groupby(self.case_id_col)
         start_timestamps = grouped[self.timestamp_col].min().reset_index()
         start_timestamps = start_timestamps.sort_values(self.timestamp_col, ascending=True, kind='mergesort')
-        train_ids = list(start_timestamps[self.case_id_col])[:int(train_ratio*len(start_timestamps))]
-        train = data[data[self.case_id_col].isin(train_ids)].sort_values(self.timestamp_col, ascending=True, kind='mergesort')
-        test = data[~data[self.case_id_col].isin(train_ids)].sort_values(self.timestamp_col, ascending=True, kind='mergesort')
+        train_ids = list(start_timestamps[self.case_id_col])[:int(train_ratio * len(start_timestamps))]
+        train = data[data[self.case_id_col].isin(train_ids)].sort_values(self.timestamp_col, ascending=True,
+                                                                         kind='mergesort')
+        test = data[~data[self.case_id_col].isin(train_ids)].sort_values(self.timestamp_col, ascending=True,
+                                                                         kind='mergesort')
         return (train, test)
 
     def generate_prefix_data(self, data, min_length, max_length):
@@ -172,9 +185,9 @@ class DatasetManager:
         data['case_length'] = data.groupby(self.case_id_col)[self.activity_col].transform(len)
 
         dt_prefixes = data[data['case_length'] >= min_length].groupby(self.case_id_col).head(min_length)
-        for nr_events in range(min_length+1, max_length+1):
+        for nr_events in range(min_length + 1, max_length + 1):
             tmp = data[data['case_length'] >= nr_events].groupby(self.case_id_col).head(nr_events)
-            tmp[self.case_id_col] = tmp[self.case_id_col].apply(lambda x: "%s_%s"%(x, nr_events))
+            tmp[self.case_id_col] = tmp[self.case_id_col].apply(lambda x: "%s_%s" % (x, nr_events))
             dt_prefixes = pd.concat([dt_prefixes, tmp], axis=0)
 
         dt_prefixes['case_length'] = dt_prefixes.groupby(self.case_id_col)[self.activity_col].transform(len)
@@ -190,11 +203,13 @@ class DatasetManager:
         return data[data[self.case_id_col].isin(indexes)]
 
     def get_label(self, data):
-        return data.groupby(self.case_id_col).min()[self.label_col]
+        # Old statement which was error-prone
+        #return data.groupby(self.case_id_col).min()[self.label_col]
+        return data.groupby(self.case_id_col)[self.label_col].min()
 
     def get_label_numeric(self, data):
-        y = self.get_label(data) # one row per case
-        #return [1 if label == self.pos_label else 0 for label in y]
+        y = self.get_label(data)  # one row per case
+        # return [1 if label == self.pos_label else 0 for label in y]
         return y
 
     def get_class_ratio(self, data):
@@ -207,8 +222,10 @@ class DatasetManager:
 
         for train_index, test_index in skf.split(grouped_firsts, grouped_firsts[self.label_col]):
             current_train_names = grouped_firsts[self.case_id_col][train_index]
-            train_chunk = data[data[self.case_id_col].isin(current_train_names)].sort_values(self.timestamp_col, ascending=True, kind='mergesort')
-            test_chunk = data[~data[self.case_id_col].isin(current_train_names)].sort_values(self.timestamp_col, ascending=True, kind='mergesort')
+            train_chunk = data[data[self.case_id_col].isin(current_train_names)].sort_values(self.timestamp_col,
+                                                                                             ascending=True,
+                                                                                             kind='mergesort')
+            test_chunk = data[~data[self.case_id_col].isin(current_train_names)].sort_values(self.timestamp_col,
+                                                                                             ascending=True,
+                                                                                             kind='mergesort')
             yield (train_chunk, test_chunk)
-
-

@@ -33,6 +33,7 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import GridSearchCV
 from sklearn.base import TransformerMixin
 from sklearn.pipeline import Pipeline, FeatureUnion
+from itertools import chain
 
 # LIME - Explainability
 import lime
@@ -71,12 +72,12 @@ import csv
 from numpy import array
 
 # ## Predictive Process Monitoring: Remaining Time Prediction
-# 
+#
 # Given an event log of complete cases of a business process, and a prefix case of the process as obtained from an event stream, we want to predict a performance measure of such prefix case in the future. For example, we may wsnt to predict the time of this case until completion (or remaining time) or its outcomeat completion. A **prediction point** is a point in the future where the performance measure has a predicted value. A prediction is thus based o nthe predictor's knowledge of the history of the process until the prediction point as well as knowledge of the future until the predicted point. The former is warrented by the predictor's **memory** while the latter is based on  the predictor's **forecast**, i.e., predicting the future based based on the trend nd seasonal patern analysis. Finally, the prediction is performed based on  a**prediction** algorithm.
 # Since in real-life business processes the amount of uncertainty increases over time, the prediction task becomes more difficult and genersally less acurate. As such, predictions are made up to a specific point of time in the future, i.e., the time zone **h**. The choice of **h** depends on how fast the process evolves and on the prediction goal.
 
 # ### Research Questions
-# 
+#
 # Research questions analysed in paper
 # :
 #   - What methods exist for predictive monitoring of remaining time of business processes?
@@ -85,26 +86,26 @@ from numpy import array
 #   - What is the relative performance of these methods?
 
 # ### Methodology
-# 
+#
 # <img href="https://www.dropbox.com/s/4uj3yll961chfau/predictive_process_monitoring_workflow.png" />
-# 
+#
 
 # #### Prefix Bucketing
-# 
+#
 # Two possible approaches used in machine-learning-based predictive process monitoring:
-# 
+#
 #   1. train a single predictor on the whole event log;
-#   2. employ a multiple predictor apporach by dividing the prefix traces in the historical log into several **buckets** and fitting a separate predictor for each bucket. 
-# 
+#   2. employ a multiple predictor apporach by dividing the prefix traces in the historical log into several **buckets** and fitting a separate predictor for each bucket.
+#
 # The four most used bucketing methods in the literature are:
 #   1. Zero Bucketing
 #   2. Prefix length bucketing
 #   3. Cluster bucketing
 #   4. State Bucketing
-# 
-#   
-# 
-# 
+#
+#
+#
+#
 
 # In[45]:
 
@@ -188,7 +189,7 @@ encoding_dict = {
 datasets = [dataset_ref] if dataset_ref not in dataset_ref_to_datasets else dataset_ref_to_datasets[dataset_ref]
 methods = encoding_dict[cls_encoding]
 
-# bucketing params to optimize 
+# bucketing params to optimize
 if bucket_method == "cluster":
     bucketer_params = {'n_clusters': [2, 4, 6]}
 else:
@@ -235,7 +236,7 @@ def train(*, save_data_chunks: bool = False):
 
             dataset_manager = DatasetManager(dataset_name)
 
-            # read the data
+           # read the data
             data = dataset_manager.read_dataset()
             data = data.groupby(dataset_manager.case_id_col).apply(add_remtime_column,
                                                                    dataset_manager.timestamp_col).reset_index(drop=True)
@@ -354,16 +355,20 @@ def train(*, save_data_chunks: bool = False):
                             # get the training data as a matrix
                             trainingdata = feature_combiner.fit_transform(dt_train_bucket)
 
+                            # HACK: Create get_feature_names function to add to the feature_combiner as it seems to not be created automatically
+                            #TODO
+                            feature_names = list(chain(*[method.get_feature_names() for method in map(lambda x: x[1], feature_combiner.transformer_list)]))
+
                             # Did not use categorical features as the parameter - example code of lime says use it,check this out.
                             explainer = lime.lime_tabular.LimeTabularExplainer(trainingdata,
-                                                                               feature_names=feature_combiner.get_feature_names(),
+                                                                               feature_names=feature_names,
                                                                                class_names=['remtime'], verbose=True,
                                                                                mode='regression')
                             print(explainer)
 
                             # write down feature names
 
-                            feat = pd.DataFrame(feature_combiner.get_feature_names())
+                            feat = pd.DataFrame(feature_names)
                             feature_path = Path(str(MY_WORKSPACE_DIR) + "/XGBoost/buckets_" + bucket_method + "_" + cls_encoding + "/train/chunk" + str(
                                     part) + "/Xtrain_Features_" + dataset_ref + "_p" + str(part) + "_b" + str(
                                     bucket) + ".csv")
